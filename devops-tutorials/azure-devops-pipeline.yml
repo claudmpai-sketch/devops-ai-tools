@@ -1,0 +1,183 @@
+# Azure DevOps Pipeline with AI Code Review
+# Complete multi-stage pipeline for CI/CD with AI-powered PR review
+
+trigger:
+  - main
+  - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  dotnetVersion: '8.0'
+
+stages:
+  - stage: Build
+    displayName: 'Build & Compile'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Application'
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: $(dotnetVersion)
+              packageType: sdk
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet packages'
+            inputs:
+              command: 'restore'
+              projects: '**/*.csproj'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build solution'
+            inputs:
+              command: 'build'
+              arguments: '--configuration $(buildConfiguration)'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Run unit tests'
+            inputs:
+              command: 'test'
+              arguments: '--configuration $(buildConfiguration) --no-build'
+              publishTestResults: true
+
+  - stage: CodeQuality
+    displayName: 'Code Quality & Security'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: CodeAnalysis
+        displayName: 'AI Code Review'
+        steps:
+          - script: |
+              echo "Running SonarQube analysis..."
+              dotnet tool install --global dotnet-sonarscanner
+              dotnet sonarscanner begin \
+                /k:"$(System.TeamProject)" \
+                /d:sonar.login="$(SONARQUBE_TOKEN)" \
+                /d:sonar.host.url="$(SONARQUBE_HOST)"
+              
+              dotnet build --configuration $(buildConfiguration)
+              
+              dotnet sonarscanner end /d:sonar.login="$(SONARQUBE_TOKEN)"
+            displayName: 'SonarQube Analysis'
+            env:
+              SONARQUBE_TOKEN: $(sonarqubeToken)
+              SONARQUBE_HOST: https://sonarqube.company.com
+
+          - script: |
+              echo "Running security scanning..."
+              dotnet tool install --global Snyk.CLI || dotnet tool update --global Snyk.CLI
+              snyk auth $(SNYK_TOKEN)
+              snyk test --severity-threshold=high
+            displayName: 'Snyk Security Scan'
+            continueOnError: true
+
+  - stage: Test
+    displayName: 'Integration & Performance Tests'
+    dependsOn: CodeQuality
+    condition: succeeded()
+    jobs:
+      - job: IntegrationTests
+        displayName: 'Integration Tests'
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Run integration tests'
+            inputs:
+              command: 'test'
+              arguments: '--filter "Category=Integration"'
+              publishTestResults: true
+
+      - job: PerformanceTests
+        displayName: 'Performance Tests'
+        steps:
+          - script: |
+              echo "Running performance benchmarks..."
+              dotnet run --project tests/PerformanceTests/PerformanceTests.csproj
+            displayName: 'Load Testing'
+
+  - stage: Build_Artifacts
+    displayName: 'Create Artifacts'
+    dependsOn: Test
+    condition: succeeded()
+    jobs:
+      - job: PublishArtifacts
+        displayName: 'Build & Publish'
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish application'
+            inputs:
+              command: 'publish'
+              publishWebProjects: true
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish artifacts'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+
+  - stage: Deploy_Staging
+    displayName: 'Deploy to Staging'
+    dependsOn: Build_Artifacts
+    condition: succeeded()
+    jobs:
+      - deployment: DeployStaging
+        displayName: 'Deploy Staging Environment'
+        environment: 'staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureAppServiceDeploy@1
+                  inputs:
+                    azureSubscription: '$(AZURE_SUBSCRIPTION)'
+                    appType: 'webAppLinux'
+                    appName: 'app-staging'
+                    deployToSlotOrASE: true
+                    slotName: 'staging'
+
+                - script: |
+                    echo "Running smoke tests..."
+                    curl -f https://app-staging.azurewebsites.net/health || exit 1
+                  displayName: 'Smoke Tests'
+
+  - stage: Deploy_Production
+    displayName: 'Deploy to Production'
+    dependsOn: Deploy_Staging
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployProduction
+        displayName: 'Deploy Production Environment'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureAppServiceDeploy@1
+                  inputs:
+                    azureSubscription: '$(AZURE_SUBSCRIPTION)'
+                    appType: 'webAppLinux'
+                    appName: 'app-prod'
+                    deployToSlotOrASE: true
+                    slotName: 'production'
+
+                - script: |
+                    echo "Smoke tests on production..."
+                    curl -f https://app-prod.azurewebsites.net/health || exit 1
+                  displayName: 'Production Smoke Tests'
+
+                - task: AzureAppServiceManage@0
+                  inputs:
+                    azureSubscription: '$(AZURE_SUBSCRIPTION)'
+                    action: 'Swap Slots'
+                    appName: 'app-prod'
+                    swapWithProduction: true
+
+# Variables to set in Azure DevOps Pipeline
+# - sonarqubeToken: [Your SonarQube token]
+# - SNYK_TOKEN: [Your Snyk token]
+# - AZURE_SUBSCRIPTION: [Azure subscription service connection]
