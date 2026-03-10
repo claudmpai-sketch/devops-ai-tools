@@ -15,6 +15,55 @@
     <link rel="canonical" href="https://devops-ai-tools.pages.dev/">
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "EducationalWebsite",
+      "name": "DevOps AI Tools",
+      "description": "Production-ready DevOps templates and automation guides for GitHub Actions, Kubernetes, Terraform, Jenkins, and AI-powered CI/CD pipelines",
+      "url": "https://devops-ai-tools.pages.dev/",
+      "creator": {
+        "@type": "Person",
+        "name": "Claud AI Assistant"
+      },
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "keywords": "DevOps, GitHub Actions, Kubernetes, Terraform, Jenkins, Docker, CI/CD, AI automation, infrastructure as code",
+      "author": {
+        "@type": "Person",
+        "name": "Claud AI Assistant"
+      }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://devops-ai-tools.pages.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Templates",
+          "item": "https://devops-ai-tools.pages.dev/#templates"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Guides",
+          "item": "https://devops-ai-tools.pages.dev/#guides"
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
     <header>
@@ -130,6 +179,82 @@
                     <a href="#ai-monitoring" class="link">Read Guide →</a>
                 </div>
             </div>
+        </section>
+
+        <!-- DevOps Cost Savings Calculator -->
+        <section id="calculator" class="calculator">
+            <h2>💰 DevOps Cost Savings Calculator</h2>
+            <p class="section-desc">Calculate how much you can save with AI-powered automation</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; max-width: 1000px; margin-left: auto; margin-right: auto;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Current Annual DevOps Costs</label>
+                    <input type="number" id="currentCosts" value="100000" min="1" style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; border-radius: 0.5rem; font-size: 1rem;">
+                    <small style="color: rgba(255,255,255,0.6); display: block; margin-top: 0.25rem;">Salary, infrastructure, tools</small>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Expected Automation Savings %</label>
+                    <input type="range" id="savingsPercent" value="40" min="5" max="80" style="width: 100%; cursor: pointer;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span id="savingsLabel" style="font-weight: 600; font-size: 1.2rem;">40%</span>
+                        <small style="color: rgba(255,255,255,0.6);">Typical: 30-60%</small>
+                    </div>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Team Size</label>
+                    <input type="number" id="teamSize" value="5" min="1" style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; border-radius: 0.5rem; font-size: 1rem;">
+                    <small style="color: rgba(255,255,255,0.6); display: block; margin-top: 0.25rem;">DevOps engineers/contractors</small>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Annual API/Tool Costs</label>
+                    <input type="number" id="toolCosts" value="5000" min="0" style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; border-radius: 0.5rem; font-size: 1rem;">
+                    <small style="color: rgba(255,255,255,0.6); display: block; margin-top: 0.25rem;">GitHub Actions, Datadog, etc</small>
+                </div>
+            </div>
+            
+            <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2rem; border-radius: 0.75rem; max-width: 1000px; margin-left: auto; margin-right: auto; text-align: center;">
+                <h3 style="margin-top: 0; color: #34d399;">Annual ROI with AI Automation</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 0.5rem;">Potential Savings</div>
+                        <div id="savingsAmount" style="font-size: 2rem; font-weight: 700; color: #34d399;">$0</div>
+                    </div>
+                    <div>
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 0.5rem;">Tool Investment</div>
+                        <div id="toolDisplay" style="font-size: 2rem; font-weight: 700; color: #f59e0b;">$0</div>
+                    </div>
+                    <div>
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 0.5rem;">Net Benefit (Year 1)</div>
+                        <div id="netBenefit" style="font-size: 2rem; font-weight: 700; color: #34d399;">$0</div>
+                    </div>
+                </div>
+                <p style="color: rgba(255,255,255,0.6); margin-top: 1.5rem; margin-bottom: 0;">This calculator estimates savings. Your actual results may vary based on implementation efficiency and team productivity gains.</p>
+            </div>
+            
+            <script>
+                function calculateSavings() {
+                    const currentCosts = parseInt(document.getElementById('currentCosts').value) || 0;
+                    const savingsPercent = parseInt(document.getElementById('savingsPercent').value) || 0;
+                    const toolCosts = parseInt(document.getElementById('toolCosts').value) || 0;
+                    
+                    const savings = currentCosts * (savingsPercent / 100);
+                    const netBenefit = savings - toolCosts;
+                    
+                    document.getElementById('savingsLabel').textContent = savingsPercent + '%';
+                    document.getElementById('savingsAmount').textContent = '$' + Math.round(savings).toLocaleString();
+                    document.getElementById('toolDisplay').textContent = '$' + toolCosts.toLocaleString();
+                    document.getElementById('netBenefit').textContent = '$' + Math.round(netBenefit).toLocaleString();
+                }
+                
+                document.getElementById('currentCosts').addEventListener('input', calculateSavings);
+                document.getElementById('savingsPercent').addEventListener('input', calculateSavings);
+                document.getElementById('toolCosts').addEventListener('input', calculateSavings);
+                
+                calculateSavings();
+            </script>
         </section>
 
         <section id="download" class="download">
